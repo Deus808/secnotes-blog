@@ -1,0 +1,126 @@
+/* ==========================================================================
+   进入站点通知（Sync Notice）样式 —— 仿手机通知横幅，淡蓝底
+   ========================================================================== */
+
+/* 横幅容器：固定在右上角，像手机下拉的通知 */
+.sn-wrap {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 90;
+  width: min(340px, calc(100vw - 36px));
+  opacity: 0;
+  transform: translateY(-14px);
+  pointer-events: none;
+  transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+}
+.sn-wrap.sn-show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.sn-wrap.sn-hide {
+  opacity: 0;
+  transform: translateX(14px);
+  pointer-events: none;
+}
+
+/* 卡片：淡蓝色背景，手机通知质感 */
+.sn-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(120, 180, 230, 0.55);
+  background: linear-gradient(160deg, #eaf6ff 0%, #d7eeff 60%, #c9e7ff 100%);
+  color: #0b2a44;
+  box-shadow: 0 12px 32px rgba(80, 140, 200, 0.28);
+  padding: 14px 42px 12px 16px;
+  font-family: var(--font-sans, system-ui, "PingFang SC", "Microsoft YaHei", sans-serif);
+}
+/* 顶部细高亮条，模拟 iPhone 灵动岛的强调色 */
+.sn-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #4aa9ff, #8ed0ff);
+}
+
+/* 通知栏标题 */
+.sn-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 6px;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.sn-title .sn-badge {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(74, 169, 255, 0.18);
+  color: #1a6bc4;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* 通知正文 */
+.sn-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #0e3a5e;
+}
+.sn-text b {
+  color: #0863c4;
+  font-weight: 700;
+}
+
+/* “不再提示”勾选项 */
+.sn-opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+  font-size: 12px;
+  color: #1c5a8f;
+  cursor: pointer;
+  user-select: none;
+}
+.sn-opt input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #2f8bff;
+  cursor: pointer;
+}
+
+/* 右上角关闭按钮 */
+.sn-close {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  color: #0e3a5e;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), transform 0.15s var(--ease);
+}
+.sn-close:hover { background: #fff; transform: scale(1.08); }
+
+/* 小屏优化 */
+@media (max-width: 520px) {
+  .sn-wrap { top: 12px; right: 12px; width: calc(100vw - 24px); }
+}

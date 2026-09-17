@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecNotes · 个人知识库</title>
+<meta name="description" content="SecNotes：基于 Markdown 的个人知识笔记库">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0f14'/%3E%3Cpath d='M16 5l9 4v7c0 5.6-3.7 9.8-9 11-5.3-1.2-9-5.4-9-11V9l9-4z' fill='none' stroke='%2322d3ee' stroke-width='2'/%3E%3Cpath d='M12 16l3 3 5.5-6' fill='none' stroke='%2334d399' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/vendor/hljs-github-dark.min.css" id="hljs-theme-dark">
+<link rel="stylesheet" href="assets/vendor/hljs-github-light.min.css" id="hljs-theme-light" disabled>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/sync-notice.css?v=20260917130255">
+<link rel="stylesheet" href="assets/css/feedback.css?v=20260917130255">
+<style id="toc-drawer-css">.toc-btn{display:none!important}@media (max-width:900px){.toc-btn{display:inline-flex!important}.toc-btn[hidden]{display:none!important}}.toc-drawer{position:fixed;top:0;right:0;bottom:0;z-index:56;width:288px;max-width:86vw;background:var(--bg);border-left:1px solid var(--border);padding:70px 18px 28px;transform:translateX(103%);transition:transform .24s var(--ease);overflow-y:auto}body.toc-open .toc-drawer{transform:none}body.toc-open .backdrop{opacity:1;visibility:visible}.toc-drawer-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 8px;font-size:13px;font-weight:600;color:var(--text-strong)}.toc-drawer .toc{display:block;position:static;top:auto;max-height:none;overflow:visible;padding-bottom:24px}.toc-drawer ul{border-left:1px solid var(--border)}</style></head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="icon-btn menu-btn" id="menuBtn" aria-label="打开导航菜单">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+    </button>
+
+    <a class="brand" href="#/">
+      <span class="brand-mark">
+        <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+          <path d="M16 4l10 4.5V16c0 6.2-4.1 11-10 12.3C10.1 27 6 22.2 6 16V8.5L16 4z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M11.5 16.2l3.1 3.1 6-6.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong id="brandTitle">SecNotes</strong>
+        <small id="brandSub">个人笔记库</small>
+      </span>
+    </a>
+
+    <nav class="topnav" id="topnav">
+      <a href="#/" data-nav="home">首页</a>
+      <a href="#/archive" data-nav="archive">归档</a>
+      <a href="#/tags" data-nav="tags">标签</a>
+      
+    <a href="javascript:void(0)" id="navFeedback" data-nav="feedback">反馈</a>
+    </nav>
+
+    <div class="topbar-actions">
+      <button class="icon-btn toc-btn" id="tocBtn" aria-label="目录" title="目录" hidden><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M3 6h.01M3 12h.01M3 18h.01" stroke-width="3"/></svg></button>
+      <button class="icon-btn" id="searchToggle" aria-label="搜索">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="切换主题">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+<ul class="side-list mobile-feedback" style="margin:0 0 12px">
+<li><a href="javascript:void(0)" id="mobileFeedback" data-nav="feedback" style="font-weight:600">反馈</a></li>
+</ul>
+    <div class="side-block">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="search" id="searchInput" placeholder="搜索笔记  （按 / 聚焦）" autocomplete="off">
+        <button class="clear-btn" id="searchClear" hidden aria-label="清空">×</button>
+      </div>
+      <div class="search-hint" id="searchHint" hidden></div>
+    </div>
+
+    <div class="side-block" id="sideCategories">
+      <h4>分类</h4>
+      <ul class="side-list" id="categoryList"></ul>
+    </div>
+
+    <div class="side-block" id="sideTags">
+      <h4>标签</h4>
+      <div class="tag-cloud" id="tagCloud"></div>
+    </div>
+
+    <div class="side-block side-stats" id="sideStats">
+      <h4>笔记库</h4>
+      <div class="stat-grid">
+        <div><b id="statNotes">0</b><span>篇笔记</span></div>
+        <div><b id="statCats">0</b><span>个分类</span></div>
+        <div><b id="statTags">0</b><span>个标签</span></div>
+        <div><b id="statWords">0</b><span>总字数</span></div>
+      </div>
+      <p class="built-at" id="builtAt"></p>
+    </div>
+  </aside>
+
+  <main class="main" id="app"></main>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span id="footerText"></span>
+    <span class="dot"></span>
+  </div>
+</footer>
+
+<div class="backdrop" id="backdrop"></div>
+
+<button class="to-top" id="toTop" hidden aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="assets/vendor/marked.min.js"></script>
+<script src="assets/vendor/highlight.min.js"></script>
+<script src="assets/js/render.js"></script>
+<!-- data/notes.js 改成按需加载：file:// 与中间代理的强缓存会用旧产物，
+     用 ?t=时间戳 强制每次都重新拉；第一次加载完成后才启动 app.js。 -->
+<script>
+(function boot(){
+  var SOURCES = ['data/notes.js', 'assets/js/app.js'];
+  var i = 0;
+  function next(){
+    if (i >= SOURCES.length) return;
+    var src = SOURCES[i++];
+    var s = document.createElement('script');
+    // 仅给 data/notes.js 加时间戳：app.js 改动频率低，正常缓存
+    s.src = src + (/notes\.js$/.test(src) ? '?t=' + Date.now() : '');
+    s.onload = s.onerror = next;
+    document.head.appendChild(s);
+  }
+  next();
+})();
+</script>
+<script src="assets/js/feedback.js?v=20260917130255"></script>
+<script src="assets/js/sync-notice.js?v=20260917130255"></script>
+<div class="toc-drawer" id="tocDrawer" aria-hidden="true"><div class="toc-drawer-head"><span>目录</span><button type="button" class="icon-btn" id="tocClose" aria-label="关闭目录">&times;</button></div><nav class="toc" id="tocMobile"></nav></div>
+</body>
+</html>
