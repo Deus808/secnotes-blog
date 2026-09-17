@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>笔记管理 · SecNotes</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0f14'/%3E%3Cpath d='M16 5l9 4v7c0 5.6-3.7 9.8-9 11-5.3-1.2-9-5.4-9-11V9l9-4z' fill='none' stroke='%2322d3ee' stroke-width='2'/%3E%3Cpath d='M12 16l3 3 5.5-6' fill='none' stroke='%2334d399' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<link rel="stylesheet" href="assets/vendor/hljs-github-dark.min.css" id="hljs-theme-dark">
+<link rel="stylesheet" href="assets/vendor/hljs-github-light.min.css" id="hljs-theme-light" disabled>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+<link rel="stylesheet" href="assets/css/manage.css">
+</head>
+<body class="adm">
+
+<header class="adm-top">
+  <div class="adm-top-left">
+    <a class="brand" href="index.html" title="打开展示端">
+      <span class="brand-mark">
+        <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+          <path d="M16 4l10 4.5V16c0 6.2-4.1 11-10 12.3C10.1 27 6 22.2 6 16V8.5L16 4z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M11.5 16.2l3.1 3.1 6-6.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>SecNotes</strong>
+        <small>笔记管理</small>
+      </span>
+    </a>
+    <span class="adm-pill" id="libPill">—</span>
+  </div>
+  <div class="adm-top-right">
+    <a class="adm-btn ghost" href="index.html" title="打开展示端">查看站点 ↗</a>
+    <button class="adm-btn ghost" id="btnImport" type="button" title="从站点数据或备份文件导入">导入</button>
+    <button class="adm-btn ghost" id="btnExportJson" type="button" title="导出全部笔记为 notes.json">导出 JSON</button>
+    <button class="adm-btn ghost" id="btnTrash" type="button" title="查看回收站：还原或彻底删除已删除的笔记（需要本地服务）">回收站</button>
+    <button class="adm-btn primary" id="btnSync" type="button" title="把笔记写入 notes/ 目录">写入 notes/ 目录</button>
+    <button class="adm-btn ghost" id="btnMgNotice" type="button" title="站点维护通知">维护通知</button>
+    <button class="adm-btn ghost icon" id="btnTheme" type="button" title="切换主题">◐</button>
+  </div>
+</header>
+
+<!-- 数据来源与落地方式说明 -->
+<div class="mg-banner" id="banner">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+  </svg>
+  <span id="bannerText">笔记保存在本浏览器（localStorage）。要让展示端看到改动，把笔记写回 <code>notes/</code> 目录后运行 <code>python build.py</code>。</span>
+  <button class="mg-banner-close" id="bannerClose" type="button" aria-label="收起">×</button>
+</div>
+
+<div class="adm-body">
+
+  <!-- ================= 左侧：笔记列表 ================= -->
+  <aside class="adm-list">
+    <div class="adm-list-head">
+      <div class="adm-search">
+        <input type="search" id="listSearch" placeholder="搜索标题 / 分类 / 标签 / 正文" autocomplete="off">
+      </div>
+      <button class="adm-btn primary block" id="btnNew" type="button">＋ 新建笔记</button>
+    </div>
+    <div class="adm-list-scroll" id="listScroll"></div>
+  </aside>
+
+  <!-- ================= 右侧：编辑器 ================= -->
+  <main class="adm-editor" id="editorPane">
+
+    <div class="adm-empty" id="editorEmpty">
+      <b>选择左侧笔记开始编辑</b>
+      <span>或点击「＋ 新建笔记」写一篇</span>
+    </div>
+
+    <div class="adm-editor-inner" id="editorInner" hidden>
+
+      <div class="adm-actions">
+        <button class="adm-btn primary big" id="btnNew2" type="button" title="新建一篇笔记">＋ 新建笔记</button>
+        <button class="adm-btn primary big" id="btnSave" type="button" title="保存到本地库  Ctrl+S">保存这篇</button>
+        <span class="mg-dirty" id="dirtyMark" hidden>未保存</span>
+        <span class="grow"></span>
+        <button class="adm-btn ghost" id="btnPreviewBar" data-preview-toggle type="button"
+                title="收起预览  Ctrl+Shift+V" aria-expanded="true" aria-controls="preview">
+          收起预览
+        </button>
+        <button class="adm-btn ghost" id="btnDownloadMd" type="button" title="把当前笔记下载为 .md 文件">下载 .md</button>
+        <button class="adm-btn danger big" id="btnDelete" type="button" title="从本地库删除这篇笔记">删除这篇</button>
+      </div>
+
+      <section class="adm-meta">
+        <label class="adm-field span2">
+          <span>标题</span>
+          <input type="text" id="fTitle" placeholder="笔记标题">
+        </label>
+        <label class="adm-field">
+          <span>日期</span>
+          <input type="date" id="fDate">
+        </label>
+        <label class="adm-field">
+          <span>分类<em>选已有，或直接输入新名字</em></span>
+          <div class="adm-cat">
+            <select id="fCategoryPick" aria-label="从已有分类中选择"></select>
+            <input type="text" id="fCategory" placeholder="如 Web 安全" autocomplete="off">
+          </div>
+        </label>
+        <label class="adm-field">
+          <span>文件名（slug）</span>
+          <input type="text" id="fSlug" placeholder="留空则由标题生成">
+        </label>
+        <label class="adm-field">
+          <span>标签</span>
+          <input type="text" id="fTags" placeholder="逗号分隔，如：XSS, CSP">
+        </label>
+        <label class="adm-field span2">
+          <span>摘要<em>留空则自动截取正文首段</em></span>
+          <textarea id="fSummary" rows="2" placeholder="首页卡片上显示的一句话摘要"></textarea>
+        </label>
+        <label class="adm-check span2">
+          <input type="checkbox" id="fDraft">
+          <span>草稿 —— 勾选后不会出现在站点上</span>
+        </label>
+
+        <div class="adm-links span4" id="linkPanel">
+          <span class="adm-links-label">双向链接</span>
+          <span class="adm-links-group" id="linkOut"><em>出链</em><span class="adm-chipset"></span></span>
+          <span class="adm-links-group" id="linkIn"><em>入链</em><span class="adm-chipset"></span></span>
+          <span class="adm-links-group" id="linkBroken"><em>待创建</em><span class="adm-chipset"></span></span>
+        </div>
+      </section>
+
+      <div class="adm-toolbar" id="toolbar">
+        <div class="adm-tool-group">
+          <button type="button" data-md="h2" title="二级标题">H2</button>
+          <button type="button" data-md="h3" title="三级标题">H3</button>
+          <button type="button" data-md="h4" title="四级标题">H4</button>
+        </div>
+        <div class="adm-tool-group">
+          <button type="button" data-md="bold" title="加粗  Ctrl+B"><b>B</b></button>
+          <button type="button" data-md="italic" title="斜体  Ctrl+I"><i>I</i></button>
+          <button type="button" data-md="code" title="行内代码  Ctrl+E">&lt;/&gt;</button>
+        </div>
+        <div class="adm-tool-group">
+          <button type="button" data-md="codeblock" class="hl" title="代码块  Ctrl+Shift+C">{ } 代码块</button>
+          <button type="button" data-md="link" title="插入链接  Ctrl+K">链接</button>
+          <button type="button" data-md="wikilink" class="hl" title="插入指向其他笔记的双向链接">[[ ]] 双链</button>
+          <button type="button" data-md="image" title="插入图片（填写相对路径，如 assets/uploads/…）">图片</button>
+        </div>
+        <div class="adm-tool-group">
+          <button type="button" data-md="ul" title="无序列表">•&nbsp;列表</button>
+          <button type="button" data-md="ol" title="有序列表">1.&nbsp;列表</button>
+          <button type="button" data-md="quote" title="引用">❝</button>
+        </div>
+        <div class="adm-tool-group">
+          <button type="button" data-md="table" title="插入表格">表格</button>
+          <button type="button" data-md="hr" title="分割线">—</button>
+        </div>
+        <div class="adm-tool-group right">
+          <span class="adm-hint">输入 <code>[[</code> 可联想笔记标题</span>
+        </div>
+      </div>
+
+      <div class="adm-work" id="work">
+        <div class="adm-pane-edit">
+          <textarea id="body" spellcheck="false" placeholder="在这里写正文，支持 Markdown（GFM）……"></textarea>
+        </div>
+        <div class="adm-pane-preview">
+          <div class="adm-preview-head">
+            <span>预览</span>
+            <em>与展示端文章页同一渲染链路</em>
+          </div>
+          <div class="adm-preview-scroll">
+            <article class="post-body adm-preview-body" id="preview"></article>
+          </div>
+        </div>
+      </div>
+
+      <footer class="adm-status">
+        <span id="stWords">约 0 字（估算）</span>
+        <span class="sep">·</span>
+        <span id="stState">就绪</span>
+        <span class="grow"></span>
+        <span id="stHint">Ctrl+S 保存</span>
+      </footer>
+
+      <div class="adm-picker" id="picker" hidden>
+        <div class="adm-picker-head">
+          <span>插入双向链接</span>
+          <kbd>↑</kbd><kbd>↓</kbd> 选择 · <kbd>Enter</kbd> 插入 · <kbd>Esc</kbd> 取消
+        </div>
+        <div class="adm-picker-list" id="pickerList"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="adm-modal" id="modalMgNotice" hidden>
+  <div class="adm-modal-box">
+    <h4>站点维护通知</h4>
+    <p class="adm-modal-tip">开启后，展示端导航栏下方会显示一条通知横幅。保存后运行「更新到GitHub.bat」发布即生效。</p>
+    <label class="adm-check" style="margin:0 0 12px">
+      <input type="checkbox" id="mgNoticeEnabled">
+      <span>启用通知</span>
+    </label>
+    <label class="adm-field">
+      <span>通知内容</span>
+      <textarea id="mgNoticeText" rows="3" placeholder="例如：站点将于今晚 22:00–24:00 维护升级…"></textarea>
+    </label>
+    <div class="adm-modal-actions">
+      <button class="adm-btn ghost" data-close type="button">取消</button>
+      <button class="adm-btn primary" id="mgNoticeSave" type="button">保存通知</button>
+    </div>
+  </div>
+</div>
+
+<div class="adm-modal" id="modalConfirm" hidden>
+  <div class="adm-modal-box">
+    <h4 id="cfTitle">确认操作</h4>
+    <p class="adm-modal-tip" id="cfText"></p>
+    <div class="adm-modal-actions">
+      <button class="adm-btn ghost" data-close type="button">取消</button>
+      <button class="adm-btn ghost" id="cfAlt" type="button" hidden>其它</button>
+      <button class="adm-btn danger" id="cfConfirm" type="button">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="adm-modal" id="modalSync" hidden>
+  <div class="adm-modal-box">
+    <h4>把笔记写回站点</h4>
+    <p class="adm-modal-tip" id="syncText">
+      浏览器不能直接改动磁盘上的文件，请选择一种方式把笔记落回 <code>notes/</code> 目录。
+    </p>
+    <div class="mg-sync-actions">
+      <button class="adm-btn primary block" id="btnSyncDir" type="button" hidden>
+        选择 notes/ 目录并写入（Chrome / Edge 支持）
+      </button>
+      <button class="adm-btn block" id="btnSyncJson" type="button">
+        下载 notes.json（之后运行 python build.py --from-json notes.json）
+      </button>
+      <button class="adm-btn ghost block" id="btnSyncAllMd" type="button">
+        逐篇下载 .md（适合笔记不多的情况）
+      </button>
+    </div>
+    <div class="adm-modal-actions">
+      <button class="adm-btn ghost" data-close type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 回收站（读取 .trash/，需要本地服务） =================
+     删除的笔记不是物理删除，而是移入 .trash/。这里提供还原与彻底删除两个动作；
+     还原后服务端会重建站点，管理端随即重新载入站点数据把这篇补回本地库。 -->
+<div class="adm-modal" id="modalTrash" hidden>
+  <div class="adm-modal-box wide">
+    <h4>回收站</h4>
+    <p class="adm-modal-tip" id="trashTip">
+      删除的笔记会移入 <code>.trash/</code>。可以<b>还原</b>回 <code>notes/</code>，或<b>彻底删除</b>。
+    </p>
+    <div class="mg-trash" id="trashList"></div>
+    <div class="adm-modal-actions">
+      <button class="adm-btn ghost" id="btnTrashRefresh" type="button">刷新</button>
+      <button class="adm-btn ghost" data-close type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="adm-toast" id="toast" hidden></div>
+<input type="file" id="importPicker" accept=".json,application/json" hidden>
+
+<script src="assets/vendor/marked.min.js"></script>
+<script src="assets/vendor/highlight.min.js"></script>
+<script src="assets/js/render.js"></script>
+<!-- data/notes.js 改为按需加载并带时间戳：浏览器对 <script src> 的强缓存会让
+     管理端读到过期的站点数据，对账逻辑据此就会把已删除的笔记错误地当成
+     「站点上还有」而保留，下次同步又写回 notes/ —— 表现为删除后展示端不同步。
+     加载链保证 data/notes.js 先就位，再拉 manage.js 并启动。 -->
+<script>
+(function boot(){
+  var SOURCES = ['data/notes.js', 'assets/js/manage.js'];
+  var i = 0;
+  function next(){
+    if (i >= SOURCES.length) return;
+    var src = SOURCES[i++];
+    var s = document.createElement('script');
+    s.src = src + (/notes\.js$/.test(src) ? '?t=' + Date.now() : '');
+    s.onload = s.onerror = next;
+    document.head.appendChild(s);
+  }
+  next();
+})();
+</script>
+
+<script>
+/* 站点维护通知：读写源站 notice.json（start-admin.bat 启动的本地服务提供 /api/notice） */
+(function () {
+  var openBtn = document.getElementById('btnMgNotice');
+  var modal = document.getElementById('modalMgNotice');
+  var enabledEl = document.getElementById('mgNoticeEnabled');
+  var textEl = document.getElementById('mgNoticeText');
+  var saveBtn = document.getElementById('mgNoticeSave');
+  if (!openBtn || !modal || !saveBtn) return;
+  var token = '';
+  function ensureToken(cb) {
+    if (token) return cb();
+    var s = document.createElement('script');
+    s.src = '/api/token.js';
+    s.onload = function () { token = window.SEC_SYNC_TOKEN || ''; cb(); };
+    s.onerror = function () { cb(); };
+    document.head.appendChild(s);
+  }
+  function handle(r) { return r.json().then(function (d) { if (!d.ok) throw new Error(d.error || '请求失败'); return d; }); }
+  openBtn.addEventListener('click', function () {
+    ensureToken(function () {
+      fetch('/api/notice', { headers: { 'X-Admin-Token': token } })
+        .then(handle).then(function (d) {
+          enabledEl.checked = !!d.notice.enabled;
+          textEl.value = d.notice.text || '';
+          modal.hidden = false;
+        }).catch(function () {
+          alert('读取失败：请确认已通过 start-admin.bat 启动本地服务。');
+        });
+    });
+  });
+  saveBtn.addEventListener('click', function () {
+    fetch('/api/notice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify({ enabled: enabledEl.checked, text: textEl.value })
+    }).then(handle).then(function () {
+      modal.hidden = true;
+      alert('已保存。运行「更新到GitHub.bat」发布后，站点即显示该通知。');
+    }).catch(function (e) { alert('保存失败：' + e.message); });
+  });
+  modal.querySelectorAll('[data-close]').forEach(function (b) {
+    b.addEventListener('click', function () { modal.hidden = true; });
+  });
+})();
+</script>
+</body>
+</html>

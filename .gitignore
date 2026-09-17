@@ -1,0 +1,21 @@
+# --- OS / editor ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vs/
+.vscode/
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Local workspace (never publish) ---
+.workbuddy/
+.trash/
+
+# --- Optional: exclude private notes before publishing ---
+# Uncomment the lines below if you do NOT want your note sources public.
+# notes/
+# data/notes.js
+# assets/uploads/

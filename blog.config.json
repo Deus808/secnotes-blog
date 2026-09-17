@@ -1,0 +1,10 @@
+{
+  "title": "我的笔记库",
+  "subtitle": "用 Markdown 记录思考",
+  "description": "一个开箱即用的个人知识笔记库示例",
+  "author": "SecNotes",
+  "footer": "记录 · 分享 · 成长",
+  "defaultTheme": "dark",
+  "pageSize": 8,
+  "siteUrl": ""
+}

@@ -1,0 +1,133 @@
+/* ============================================================
+   SecNotes 笔记管理端（manage.html）样式
+   骨架与配色沿用 admin.css / style.css，这里只补差异部分。
+   ============================================================ */
+
+/* 顶部说明条：交代数据存在哪、怎么落回站点 */
+.mg-banner {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 22px;
+  background: var(--accent-soft); border-bottom: 1px solid var(--accent-line);
+  color: var(--text); font-size: 13px; line-height: 1.6;
+}
+.mg-banner svg { color: var(--accent); flex: 0 0 auto; }
+.mg-banner code {
+  font-family: var(--font-mono); font-size: 12.5px; color: var(--accent);
+  background: var(--panel); border: 1px solid var(--accent-line);
+  border-radius: 5px; padding: 1px 6px;
+}
+.mg-banner-close {
+  margin-left: auto; flex: 0 0 auto;
+  width: 24px; height: 24px; border: none; border-radius: var(--radius-sm);
+  background: transparent; color: var(--muted-2); font-size: 15px; cursor: pointer;
+  transition: all 0.15s var(--ease);
+}
+.mg-banner-close:hover { background: var(--panel-hover); color: var(--text-strong); }
+
+/* 未保存标记 */
+.mg-dirty {
+  font-size: 12px; font-weight: 600; color: var(--accent-2);
+  border: 1px solid rgba(52, 211, 153, 0.35); border-radius: 20px;
+  padding: 1px 9px; font-family: var(--font-mono);
+}
+
+/* 列表中「未写入 notes/ 目录」的标记 */
+.mg-unsynced {
+  color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.32);
+  border-radius: 4px; padding: 0 5px; font-family: var(--font-sans); font-size: 11px;
+}
+
+/* 落地方式弹窗里的按钮组 */
+.mg-sync-actions { display: flex; flex-direction: column; gap: 9px; margin-bottom: 4px; }
+
+/* ---------------- 分类选择栏 ----------------
+   左边下拉列出已有分类（带篇数），右边输入框自由输入；
+   输入框是保存时的唯一真值，所以直接敲新名字就等于新建分类。 */
+.adm-cat { display: flex; gap: 6px; }
+.adm-cat select {
+  flex: 0 0 auto; max-width: 48%;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 7px; padding: 7px 8px; color: var(--text);
+  font-family: var(--font-sans); font-size: 13px; outline: none; cursor: pointer;
+  transition: border-color 0.14s var(--ease), box-shadow 0.14s var(--ease);
+}
+.adm-cat select:hover { border-color: var(--accent-line); color: var(--accent); }
+.adm-cat select:focus { border-color: var(--accent-line); box-shadow: 0 0 0 3px var(--accent-soft); }
+.adm-cat input { flex: 1 1 auto; min-width: 0; }
+
+/* ---------------- 笔记列表的右键菜单 ---------------- */
+.adm-context-menu {
+  position: fixed; z-index: 400;
+  min-width: 160px; padding: 4px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 2px;
+  font-family: var(--font-sans); font-size: 13px;
+  color: var(--text);
+}
+.adm-context-item {
+  text-align: left; border: none; background: transparent;
+  padding: 7px 12px; border-radius: 6px; cursor: pointer;
+  color: var(--text); font: inherit;
+  transition: background 0.12s var(--ease);
+}
+.adm-context-item:hover, .adm-context-item:focus {
+  background: var(--panel-hover); outline: none;
+  color: var(--text-strong);
+}
+.adm-context-item.danger { color: #f87171; }
+.adm-context-item.danger:hover, .adm-context-item.danger:focus {
+  background: rgba(248, 113, 113, 0.12); color: #fca5a5;
+}
+
+/* ---------------- 预览收起 / 展开 ---------------- */
+/* 收起：预览整栏隐藏，编辑区占满。预览栏的开关统一放在操作栏，详见 #btnPreviewBar */
+body.preview-collapsed .adm-pane-preview { display: none; }
+body.preview-collapsed .adm-work { grid-template-columns: minmax(0, 1fr); }
+body.preview-collapsed .adm-pane-edit { border-right: none; }
+
+/* 窄屏下预览默认收起更顺手（仍可手动展开） */
+@media (max-width: 860px) {
+  .mg-banner { padding: 8px 14px; font-size: 12.5px; }
+  .adm-top-right #btnImport, .adm-top-right #btnExportJson { display: none; }
+}
+
+/* ---------------- 回收站（manage.html 的 .trash/ 入口） ----------------
+   列表可能较长，给一个内部滚动区域；条目用事件委托，所以结构保持扁平。 */
+.adm-modal-box.wide { max-width: 720px; width: min(92vw, 720px); }
+
+.mg-trash {
+  max-height: min(52vh, 460px);
+  overflow-y: auto;
+  margin: 4px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+}
+.mg-trash-empty {
+  padding: 22px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+.mg-trash-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.mg-trash-item:last-child { border-bottom: none; }
+.mg-trash-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mg-trash-meta strong {
+  font-size: 13.5px; color: var(--text-strong);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mg-trash-meta span { font-size: 12px; color: var(--muted); }
+.mg-trash-meta code {
+  font-family: var(--font-mono);
+  font-size: 11.5px; color: var(--muted-2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mg-trash-acts { display: flex; gap: 8px; flex-shrink: 0; }
+.mg-trash-acts .adm-btn { padding: 5px 11px; font-size: 12.5px; }
