@@ -17,6 +17,14 @@
 - **公网分享**：`bin/demo.bat` 一条命令把站点通过 SSH 反向隧道分享给朋友
 - **发布工具**：`deploy/` 一键整理发布目录、注入反馈 / 维护通知等展示端功能
 
+## 依赖
+
+- **Python 3.8+**：构建 / 管理 / 发布脚本全部只用标准库，**无任何第三方 pip 依赖**，不需要 `pip install`；
+- 前端第三方库（marked、highlight.js 等）已内置在 `assets/vendor/`，**不依赖 CDN**，断网也能完整运行。
+
+> Windows 用户甚至不用关心依赖细节：双击根目录的 `start-here.bat` 即可自动化完成
+> 「检测 Python → 构建 → 打开站点」全部流程，没装 Python 时会提示去官网安装。
+
 ## 目录结构
 
 ```
@@ -29,6 +37,7 @@ secnotes/
 ├── admin.py              # 管理服务（写作 / 同步 / 维护通知 API）
 ├── manage.html           # 网页编辑器（需配合 admin.py 使用）
 ├── start-admin.bat       # Windows 双击启动管理服务并打开编辑器
+├── start-here.bat        # Windows 一键上手：检测 Python → 构建 → 打开站点
 ├── share-server.py       # 只读分享白名单静态服务（bin/demo.bat 内部使用）
 ├── notes/                # ★ 你的 Markdown 笔记原稿
 ├── data/                 # 构建产物：notes.js（不要手改）
@@ -38,6 +47,10 @@ secnotes/
 ```
 
 ## 快速开始
+
+**零门槛一条命令（Windows）**：双击根目录的 `start-here.bat`，自动检测 Python → 构建 → 打开页面。
+
+手动方式：
 
 ```bash
 # 1. 构建（扫描 notes/ 生成 data/notes.js）
@@ -73,6 +86,24 @@ summary: 可选的摘要（留空则自动截取正文）
 ```
 
 ## 发布到 GitHub Pages
+
+两种方式任选：**方式 A** 用仓库自带的 GitHub Actions 自动构建发布（推荐），
+**方式 B** 用 `deploy/` 工具在本地构建后提交 / 推送。
+
+### 方式 A（推荐）：GitHub Actions 自动发布
+
+仓库已内置工作流 `.github/workflows/pages.yml`（push 到 `main` 自动运行），
+自动**构建 notes → 整理站点文件 → 部署到 Pages**：
+
+1. 把仓库推送到 GitHub 后，进入 **Settings → Pages**；
+2. **Source** 选择 **GitHub Actions**（只需这一次手动开启，GitHub 不允许通过 API 开启）；
+3. 之后每次 `push` 到 `main` 都会自动重新构建并发布；
+4. 约 1-2 分钟后访问 `https://<你的用户名>.github.io/<你的仓库>/` 即可看到完整示例站点。
+
+> 该方式发布的是公开演示页面（`index.html` + `data/` + `assets/`），每次基于当前
+> `notes/` 重新构建。想发布自己的笔记时，把自己的内容写进 `notes/` 再推上去即可。
+
+### 方式 B：deploy/ 工具本地发布
 
 发布工具位于 `deploy/`，会**构建 → 整理公开文件 → 注入反馈/维护通知等功能 → git 提交（可选推送）**，
 源站 `index.html` 零改动。
